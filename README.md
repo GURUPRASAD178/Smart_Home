@@ -1,150 +1,176 @@
-# Smart home mini project
+# 🏠 Smart Home Automation for Energy-Efficient Adaptive Lighting
 
-A small smart home you can run on your laptop today and wire to real hardware later.
+**An iterative IoT-based smart home automation system focused on energy efficiency, adaptive lighting, sensor monitoring, and data-driven analytics.**
 
-- **Arduino Uno** reads temperature and an IR sensor, and drives a light, a fan and a buzzer.
-- **Django** (backend) runs the rules and exposes a JSON API.
-- **React** (frontend) shows a live dashboard and lets you control everything.
+[![Project Status](https://img.shields.io/badge/Status-In%20Development-orange)]()
+[![Platform](https://img.shields.io/badge/Platform-Arduino%20Uno-blue)]()
+[![Language](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Python-green)]()
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
 
-No Arduino yet? The backend has a built-in **simulator**, so the whole thing runs with zero hardware.
+## 📌 Overview
 
-```
-Arduino  <--USB serial-->  Django (rules + API + SQLite)  <--HTTP/JSON-->  React dashboard
-                                  ^
-                          or the simulator
-```
+This project aims to design and implement a low-cost smart home automation system that monitors environmental conditions, supports adaptive lighting, and provides a web dashboard for visualization and analytics.
 
-## What it does
+The system is being developed iteratively, following a practical software engineering workflow: requirements analysis, system design, implementation, testing, integration, evaluation, and documentation.
 
-| Feature | Rule |
-| --- | --- |
-| Fan | Turns on at or above the temperature threshold (default 28 °C), off 1 °C below it |
-| Light | Turns on when the IR sensor sees movement, off after 10 s without movement |
-| Alarm | When armed, any movement sounds the buzzer until you silence or disarm it |
-| Manual control | Flip any switch yourself. It stays manual until you press **Auto** |
-| Activity log | Every change is recorded with a reason, e.g. "Fan turned on: 29.1°C is above 28°C" |
+The initial prototype uses an Arduino Uno and a DHT11 temperature and humidity sensor. Additional components and software modules will be introduced as the project progresses.
 
-## Run it (simulator, no hardware)
+## 🎯 Objectives
 
-You need Python 3.10+ and Node 18+.
+- Monitor indoor temperature and humidity using IoT sensors.
+- Implement adaptive lighting based on environmental and occupancy-related inputs.
+- Reduce unnecessary lighting usage through automation.
+- Build a web dashboard for sensor readings, device status, and historical data.
+- Analyze sensor readings and estimate lighting energy consumption.
+- Evaluate the system using measurable performance indicators.
+- Keep the hardware design affordable and suitable for an academic demonstration.
 
-**Terminal 1: backend**
+## 🛠️ Technology Stack
 
-```bash
-cd backend
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
+| Component | Technology |
+|---|---|
+| Microcontroller | Arduino Uno |
+| Environmental sensing | DHT11 |
+| Lighting control | LED and suitable driver circuitry |
+| Additional sensing | To be finalized |
+| Programming | Arduino C/C++, Python |
+| Backend | To be finalized |
+| Database | To be finalized |
+| Dashboard | Web-based interface |
+| Analytics | Historical trends and energy-saving estimates |
+| Cloud integration | Optional, depending on hardware and connectivity |
 
-**Terminal 2: frontend**
+## 🏗️ Proposed Architecture
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open http://localhost:5173. In the **Simulator** panel, drag the temperature up past the threshold and press **Walk past the sensor** to watch the fan and light react.
-
-Run the backend tests with `python manage.py test` (inside `backend`).
-
-## Run it with the real Arduino
-
-### 1. Parts
-
-You already have everything needed: Uno, temperature sensor, IR sensor, buzzer, breadboard, wires.
-
-The sketch uses the Uno's **built-in LED (D13) as the "light"**, so that costs nothing. For a visible "fan" on D10, pick one from your ₹200 budget (prices are rough):
-
-| Option | Approx. cost | Notes |
-| --- | --- | --- |
-| LED + 220 Ω resistor | ₹5–15 | Simplest stand-in for a fan |
-| 5 V relay module + small 5 V DC fan | ₹100–180 | Switches a real fan. Use a low-voltage DC fan only, not mains |
-
-### 2. Wiring
-
-| Part | Part pin | Uno pin |
-| --- | --- | --- |
-| LM35 or TMP36 | +Vs (left pin, flat side facing you) | 5V |
-| | Vout (middle) | A0 |
-| | GND (right) | GND |
-| IR obstacle module | VCC / GND / OUT | 5V / GND / D2 |
-| Active buzzer | + (long leg) / − | D8 / GND |
-| Fan LED | long leg through 220 Ω | D10, short leg to GND |
-| Fan relay (instead of LED) | IN / VCC / GND | D10 / 5V / GND |
-| Light | built-in LED | D13 (nothing to wire) |
-
-Use an **active** buzzer (it beeps when given power). If yours is passive, it needs `tone()` in the sketch instead.
-
-### 3. Upload the sketch
-
-1. Open `arduino/smart_home/smart_home.ino` in the Arduino IDE.
-2. At the top, check the two options:
-   - `TEMP_SENSOR_LM35` is `1` for LM35, `0` for TMP36.
-   - `IR_ACTIVE_LOW` is `1` for most IR modules. If movement shows up inverted, set it to `0`.
-3. Pick your board (Arduino Uno) and port, then upload.
-4. Open the Serial Monitor at 9600 baud. You should see a line like `T:27.4,M:0` every second. Then **close the Serial Monitor**, because only one program can use the port.
-
-Using a **DHT11** instead? Swap the body of `readTemperature()` for a DHT library call. Nothing else changes.
-
-### 4. Point Django at the Arduino
-
-```bash
-pip install pyserial
+```text
+Environmental Sensors
+        |
+        v
+   Arduino Uno
+        |
+        v
+ Data Acquisition
+        |
+        v
+ Communication Layer
+        |
+        v
+ Backend and Database
+        |
+        +------------------+
+        |                  |
+        v                  v
+   Web Dashboard       Analytics
+        |                  |
+        +--------+---------+
+                 |
+                 v
+     Automation and Evaluation
 ```
 
-Then start the backend with the serial port (find yours in the Arduino IDE's Tools > Port):
+The communication layer will depend on the available hardware. The Arduino Uno does not have built-in Wi-Fi, so network connectivity requires a suitable external module, gateway, or another connected device.
 
-```bash
-# macOS / Linux
-HARDWARE=serial SERIAL_PORT=/dev/ttyACM0 python manage.py runserver
+## ⚙️ Planned Features
 
-# Windows PowerShell
-$env:HARDWARE="serial"; $env:SERIAL_PORT="COM3"; python manage.py runserver
+- [x] Initial hardware selection
+- [ ] Temperature and humidity monitoring
+- [ ] Sensor data validation and error handling
+- [ ] Adaptive lighting logic
+- [ ] Manual lighting control
+- [ ] Automated lighting control
+- [ ] Web dashboard
+- [ ] Historical data storage
+- [ ] Energy consumption estimation
+- [ ] Analytics and visualization
+- [ ] System testing and evaluation
+- [ ] Final research report and demonstration
+
+*Checklist items will be updated only after the corresponding functionality has been implemented and tested.*
+
+## 📊 Analytics and Evaluation
+
+The system will be evaluated using measurable indicators such as:
+
+- Lighting activation and deactivation events.
+- Estimated operating hours.
+- Estimated energy consumption.
+- Estimated energy savings against a defined baseline.
+- Sensor reading reliability.
+- Automation response time.
+- System availability during testing.
+
+Energy savings will be calculated against a documented baseline. Estimated savings will be distinguished from measurements obtained using actual power-monitoring hardware.
+
+## 🚀 Development Roadmap
+
+| Phase | Deliverable |
+|---|---|
+| Phase 1 | Requirements and feasibility analysis |
+| Phase 2 | Hardware setup and sensor validation |
+| Phase 3 | Lighting control prototype |
+| Phase 4 | Automation logic and manual override |
+| Phase 5 | Backend, database, and communication |
+| Phase 6 | Web dashboard and analytics |
+| Phase 7 | Integration, testing, and evaluation |
+| Phase 8 | Research documentation and final demonstration |
+
+## 🔬 Research Direction
+
+The project focuses on energy-efficient smart home automation and adaptive lighting. Relevant academic research will guide the design, evaluation metrics, and experimental methodology.
+
+The final documentation will include the selected research paper, its IEEE citation and DOI, the implemented methodology, deviations from the paper, and experimental results.
+
+## 📂 Planned Repository Structure
+
+```text
+smart-home-automation/
+├── hardware/
+│   ├── arduino/
+│   ├── circuits/
+│   └── README.md
+├── backend/
+├── frontend/
+├── analytics/
+├── docs/
+│   ├── requirements.md
+│   ├── architecture.md
+│   ├── implementation-log.md
+│   ├── testing.md
+│   └── research-paper.md
+├── tests/
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
 
-The dashboard's status pill changes to "Live, Arduino connected", and the Simulator panel disappears.
+The directory structure may evolve as the implementation becomes clearer.
 
-If the Arduino stops responding, the pill turns red. If Django stops talking to the Arduino for 10 s, the Arduino switches all outputs off, so the buzzer can't get stuck on.
+## 🧪 Testing Strategy
 
-## How the Arduino and Django talk
+Each phase will include verification before moving to the next phase. Testing will cover sensor accuracy and reliability, lighting control behavior, communication failures, data storage, dashboard correctness, and energy-saving calculations.
 
-Plain text lines over USB serial at 9600 baud.
+Test results, limitations, and corrective actions will be documented.
 
-- Arduino to Django, once per second: `T:27.4,M:0` (temperature, movement 0/1)
-- Django to Arduino, every second: `SET,<light>,<fan>,<buzzer>` (each 0 or 1), e.g. `SET,1,0,0`
+## 💰 Budget
 
-## API
+The additional hardware budget target is **under ₹500**, excluding components already owned. Final feasibility will depend on the availability and cost of the required lighting and communication components.
 
-All under `/api/`. Responses are JSON.
+## 👨‍💻 Development Approach
 
-| Method and path | Body | Purpose |
-| --- | --- | --- |
-| `GET /status/` | | Latest reading, device states, settings, mode |
-| `GET /readings/?limit=60` | | Recent temperature and movement history |
-| `GET /events/?limit=12` | | Activity log, newest first |
-| `POST /devices/<light\|fan\|buzzer>/` | `{"on": true}` or `{"auto": true}` | Switch by hand, or hand control back to the rules |
-| `POST /config/` | `{"temp_threshold": 30, "light_timeout": 15}` | Change the rules |
-| `POST /alarm/` | `{"armed": true}` or `{"silence": true}` | Arm, disarm or silence the alarm |
-| `POST /sim/` | `{"temp": 31}` or `{"motion": true}` | Simulator only |
+This project follows an iterative workflow:
 
-## Project layout
+1. Define requirements and acceptance criteria.
+2. Design a small, testable feature.
+3. Implement the feature.
+4. Verify its behavior.
+5. Document results and limitations.
+6. Integrate it with existing features.
+7. Repeat until the complete system is demonstrated.
 
-```
-arduino/smart_home/smart_home.ino   Arduino sketch
-backend/home/engine.py              the automation rules (start reading here)
-backend/home/hardware.py            SimDriver and SerialDriver
-backend/home/runner.py              background loop: read, apply rules, write outputs
-backend/home/views.py, urls.py      the JSON API
-backend/home/tests.py               tests for the rules and API
-frontend/src/App.jsx                dashboard (polls the API every 1.5 s)
-```
+## 📄 Documentation
 
-## Ideas for the next step
+Detailed project documentation will be maintained in the `docs/` directory, including requirements, architecture, design decisions, implementation history, testing evidence, analytics methodology, and research references.
 
-- **Cloud:** host Django somewhere free-tier, switch SQLite to Postgres, and add login.
-- **Wireless:** replace the Uno and USB cable with an ESP8266 or ESP32 that posts readings over Wi-Fi (or MQTT), and add a `POST /api/readings/` endpoint for it. The rules in `engine.py` stay the same.
-- **Alerts:** send a phone notification or email when the alarm triggers.
-- **Live updates:** swap polling for WebSockets (Django Channels).
-- **More rooms and sensors:** add a `room` field to readings and devices.
+## 📜 License
+
+This project is intended for academic and educational purposes. The final license will be confirmed before public release.
