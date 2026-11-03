@@ -5,7 +5,7 @@
 [![Project Status](https://img.shields.io/badge/Status-In%20Development-orange)]()
 [![Platform](https://img.shields.io/badge/Platform-Arduino%20Uno-blue)]()
 [![Language](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Python-green)]()
-[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
+
 
 ## 📌 Overview
 
@@ -171,6 +171,3 @@ This project follows an iterative workflow:
 
 Detailed project documentation will be maintained in the `docs/` directory, including requirements, architecture, design decisions, implementation history, testing evidence, analytics methodology, and research references.
 
-## 📜 License
-
-This project is intended for academic and educational purposes. The final license will be confirmed before public release.
